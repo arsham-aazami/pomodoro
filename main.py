@@ -10,14 +10,22 @@ FONT_NAME = "Courier"
 WORK_MIN = 25
 SHORT_BREAK_MIN = 5
 LONG_BREAK_MIN = 20
+reps = 0
 
 
 # ---------------------------- TIMER RESET ------------------------------- #
 
+
 # ---------------------------- TIMER MECHANISM ------------------------------- #
 
 def reset():
-	todo_label.config(text="Timer")
+    todo_label.config(text="Timer")
+
+
+def checkmark_label(checkmark_x, reps_num):
+    labels_canvas = Canvas(width=100, height=40)
+    labels_canvas.grid(column=1, row=2)
+    labels_canvas.create_text(checkmark_x, 20, text="ok", font=("Courier", 10, "normal"))
 
 
 # ---------------------------- COUNTDOWN MECHANISM ------------------------------- #
@@ -43,20 +51,30 @@ canvas.grid(column=1, row=1)
 
 
 def count_down(count):
-
-	window.after(1000, count_down, count - 1)
-	count_min = math.floor(count / 60)
-	count_rest_sec = count % 60
-	if count_rest_sec < 10:
-		count_rest_sec = f"0{count_rest_sec}"
-	if count_rest_sec == 0:
-		count_rest_sec = "00"
-	if count >= 0:
-		canvas.itemconfig(timer_label, text=f"{count_min}:{count_rest_sec}")
+    global reps
+    window.after(1000, count_down, count - 1)
+    count_min = math.floor(count / 60)
+    count_rest_sec = count % 60
+    if count_min == 0:
+        count_min = "00"
+    if count_rest_sec < 10:
+        count_rest_sec = f"0{count_rest_sec}"
+    if count_rest_sec == 0:
+        count_rest_sec = "00"
+    if count >= 0:
+        canvas.itemconfig(timer_label, text=f"{count_min}:{count_rest_sec}")
+    elif count == -1:
+        if reps < 4:
+            reps = reps + 1
+            todo_label.config(text=f"{SHORT_BREAK_MIN} minutes rest", font=("Courier", 18, "normal"))
+            checkmark_label(reps * 10, reps)
+        elif reps == 4:
+            todo_label.config(text=f"{LONG_BREAK_MIN} minutes rest", font=("Courier", 18, "normal"))
 
 
 def start():
-	count_down(25 * 60)
+    todo_label.config(text="Work")
+    count_down(5)
 
 
 start_button = Button(text="start", border=3, command=start, padx=10, pady=10, font=("Courier", 15, "normal"))
