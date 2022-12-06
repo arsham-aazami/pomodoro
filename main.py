@@ -19,17 +19,14 @@ reps = 0
 # ---------------------------- TIMER MECHANISM ------------------------------- #
 
 def reset():
-    todo_label.config(text="Timer")
-
-
-def checkmark_label(checkmark_x, reps_num):
-    labels_canvas = Canvas(width=100, height=40)
-    labels_canvas.grid(column=1, row=2)
-    labels_canvas.create_text(checkmark_x, 20, text="ok", font=("Courier", 10, "normal"))
+    global reps
+    reps = 0
+    todo_label.config(text="Timer", font=("Courier", 40, "normal"))
+    checkmark_canvas.delete("all")
 
 
 # ---------------------------- COUNTDOWN MECHANISM ------------------------------- #
-mechanism = []
+
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
@@ -41,13 +38,16 @@ todo_label = Label(text="Timer", bg="#FFF6BF", fg="#9bdeac", font=("Courier", 40
 # todo_label.place(x=220, y=60)
 todo_label.grid(column=1, row=0)
 
-canvas = Canvas(width=200, height=224, highlightthickness=0)
+image_canvas = Canvas(width=200, height=224, highlightthickness=0)
 tomato_src = PhotoImage(file="tomato.png")
-canvas.config(bg="#FFF6BF", border=0)
-canvas.create_image(100, 112, image=tomato_src)
+image_canvas.config(bg="#FFF6BF")
+image_canvas.create_image(100, 112, image=tomato_src)
+timer_label = image_canvas.create_text(100, 130, text="00:00", font=("Courier", 20, "normal"), fill="white")
+image_canvas.grid(column=1, row=1)
 
-timer_label = canvas.create_text(100, 130, text="00:00", font=("Courier", 20, "normal"), fill="white")
-canvas.grid(column=1, row=1)
+checkmark_canvas = Canvas(width=150, height=50, highlightthickness=0)
+checkmark_canvas.grid(column=1, row=2)
+checkmark_canvas.config(bg="#FFF6BF")
 
 
 def count_down(count):
@@ -62,12 +62,15 @@ def count_down(count):
     if count_rest_sec == 0:
         count_rest_sec = "00"
     if count >= 0:
-        canvas.itemconfig(timer_label, text=f"{count_min}:{count_rest_sec}")
+        image_canvas.itemconfig(timer_label, text=f"{count_min}:{count_rest_sec}")
     elif count == -1:
         if reps < 4:
             reps = reps + 1
+            image_canvas.itemconfig(timer_label, text=f"{SHORT_BREAK_MIN}:{count_rest_sec}")
+            count_down(5*60)
+
             todo_label.config(text=f"{SHORT_BREAK_MIN} minutes rest", font=("Courier", 18, "normal"))
-            checkmark_label(reps * 10, reps)
+            checkmark_canvas.create_text(40 * reps, 20, text="ok", font=("Courier", 14, "normal"))
         elif reps == 4:
             todo_label.config(text=f"{LONG_BREAK_MIN} minutes rest", font=("Courier", 18, "normal"))
 
@@ -82,6 +85,6 @@ start_button.grid(column=0, row=2)
 
 reset_button = Button(text="reset", border=3, command=reset, padx=10, pady=10, font=("Courier", 15, "normal"))
 reset_button.grid(column=2, row=2)
-checkmark_done = Label(text=mechanism, font=("Courier", 10, "normal"))
+
 
 window.mainloop()
